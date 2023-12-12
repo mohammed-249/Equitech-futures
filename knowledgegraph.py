@@ -67,6 +67,7 @@ def main(kb_file_name,api_key):
   api_response = callGptApi(api_key,prompt_text)
   df,rel_lables = preparingDataForGraph(api_response)
   createGraph(df,rel_lables)
+  save_to_neo4j(df)
 
 def start():
   while True:
