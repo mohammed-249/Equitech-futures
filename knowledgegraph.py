@@ -6,18 +6,6 @@ import matplotlib.pyplot as plt
 import os
 from neo4j import GraphDatabase
 
-NEO4J_URI = "bolt://44.201.200.123:7687"  
-NEO4J_USER = "neo4j"         
-NEO4J_PASSWORD = "fighters-searchlights-boxcar"   
-
-def create_neo4j_graph(tx, source, target, edge):
-    query = (
-        f"MERGE (s:Node {{name: $source}})"
-        f"MERGE (t:Node {{name: $target}})"
-        f"MERGE (s)-[:{edge}]->(t)"
-    )
-    tx.run(query, source=source, target=target, edge=edge)
-
 # defining the api-endpoint
 API_ENDPOINT = "https://api.openai.com/v1/completions"
 API_KEY = ""
@@ -80,15 +68,6 @@ def main(kb_file_name,api_key):
   api_response = callGptApi(api_key,prompt_text)
   df,rel_lables = preparingDataForGraph(api_response)
   createGraph(df,rel_lables)
-  driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
-
-    # Create nodes and relationships
-  with driver.session() as session:
-      for _, row in df.iterrows():
-          session.write_transaction(create_neo4j_graph, row['source'], row['target'], row['edge'])
-
-    # Close Neo4j connection
-  driver.close()
 
 def start():
   while True:
